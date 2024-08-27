@@ -2,294 +2,531 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رواية جين</title>
+    <title>Dark Spot - لعبة رعب الفضاء</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
+            background-color: #1C1C1C; 
+            color: #E0E0E0; 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            transition: background-color 0.5s, color 0.5s;
         }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
+        .part { display: none; }
+        .btn { 
+            margin: 10px; 
+            padding: 10px; 
+            background-color: #E0E0E0; 
+            color: #121212; 
+            border: none; 
+            cursor: pointer; 
+            transition: background-color 0.3s;
         }
-        .container {
-            margin: 50px auto;
-            max-width: 300px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        input, button {
-            margin: 10px 0;
+        .btn:hover { background-color: #b0b0b0; }
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #E0E0E0;
+            color: #121212;
             padding: 10px;
-            width: 100%;
             border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
             cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .google-btn {
-            background-color: #db4437;
-            color: #fff;
-        }
-        .apple-btn {
-            background-color: #333;
-            color: #fff;
-        }
-        .phone-auth-container {
-            display: none;
-        }
-        .create-account-link {
-            font-size: 14px;
-            color: #333;
-            text-decoration: underline;
-            cursor: pointer;
-        }
+        .toggle-btn:hover { background-color: #b0b0b0; }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
     <script>
-        // إعداد Firebase
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        let isDarkMode = true;
 
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // تسجيل الدخول عبر Google
-        function googleSignIn() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    alert("تم تسجيل الدخول كـ " + result.user.email);
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('main-content').style.display = 'block';
-                })
-                .catch(error => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        // تسجيل الدخول عبر Apple
-        function appleSignIn() {
-            const provider = new firebase.auth.OAuthProvider('apple.com');
-            auth.signInWithPopup(provider)
-                .then(result => {
-                    alert("تم تسجيل الدخول كـ " + result.user.email);
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('main-content').style.display = 'block';
-                })
-                .catch(error => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        // تسجيل الدخول عبر البريد الإلكتروني وكلمة المرور
-        function emailSignIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            auth.signInWithEmailAndPassword(email, password)
-                .then(result => {
-                    alert("تم تسجيل الدخول كـ " + result.user.email);
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('main-content').style.display = 'block';
-                })
-                .catch(error => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        // إنشاء حساب جديد عبر البريد الإلكتروني وكلمة المرور
-        function emailSignUp() {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(result => {
-                    alert("تم إنشاء الحساب بنجاح كـ " + result.user.email);
-                    document.getElementById('login-form').style.display = 'none';
-                    document.getElementById('main-content').style.display = 'block';
-                })
-                .catch(error => {
-                    alert("خطأ: " + error.message);
-                });
-        }
-
-        // إظهار نموذج إنشاء حساب جديد
-        function showCreateAccountForm() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('create-account-form').style.display = 'block';
-        }
-
-        window.onload = function() {
-            document.getElementById('create-account-link').addEventListener('click', showCreateAccountForm);
-        };
-    </script>
-</head>
-<body>
-    <header>
-        <h1>رواية جين</h1>
-    </header>
-
-    <!-- نموذج تسجيل الدخول -->
-    <div id="login-form" class="container">
-        <h2>تسجيل الدخول</h2>
-        <input type="email" id="email" placeholder="البريد الإلكتروني">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button onclick="emailSignIn()">تسجيل الدخول</button>
-        <button class="google-btn" onclick="googleSignIn()">تسجيل الدخول باستخدام Google</button>
-        <button class="apple-btn" onclick="appleSignIn()">تسجيل الدخول باستخدام Apple</button>
-        <p id="create-account-link" class="create-account-link">إنشاء حساب جديد</p>
-    </div>
-
-    <!-- نموذج إنشاء حساب جديد -->
-    <div id="create-account-form" class="container" style="display: none;">
-        <h2>إنشاء حساب جديد</h2>
-        <input type="email" id="signup-email" placeholder="البريد الإلكتروني">
-        <input type="password" id="signup-password" placeholder="كلمة المرور">
-        <button onclick="emailSignUp()">إنشاء حساب</button>
-        <p id="login-link" class="create-account-link">العودة لتسجيل الدخول</p>
-    </div>
-
-    <!-- محتوى الموقع الرئيسي -->
-    <div id="main-content" class="container" style="display: none;">
-        <h2>مرحبا بكم في رواية جين!</h2>
-        <p>هذا هو المحتوى الرئيسي للموقع.</p>
-    </div>
-</body>
-  </html>
-
-  <!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رواية جين - الصفحة الرئيسية</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 0;
-        }
-        .container {
-            margin: 50px auto;
-            max-width: 300px;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        button {
-            margin: 10px 0;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
-            cursor: pointer;
-        }
-        .sign-out-btn {
-            background-color: #c62828;
-            color: #fff;
-        }
-    </style>
-    <!-- تحميل مكتبة Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
-    <script>
-        // إعداد Firebase
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // فحص حالة تسجيل الدخول عند تحميل الصفحة
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                // المستخدم مسجل الدخول
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-            } else {
-                // لم يقم المستخدم بتسجيل الدخول
-                document.getElementById('login-form').style.display = 'block';
-                document.getElementById('main-content').style.display = 'none';
-            }
-        });
-
-        // تسجيل الخروج
-        function signOut() {
-            auth.signOut().then(() => {
-                alert('تم تسجيل الخروج بنجاح');
-                document.getElementById('login-form').style.display = 'block';
-                document.getElementById('main-content').style.display = 'none';
-            }).catch((error) => {
-                alert('خطأ في تسجيل الخروج: ' + error.message);
+        function toggleMode() {
+            isDarkMode = !isDarkMode;
+            document.body.style.backgroundColor = isDarkMode ? '#1C1C1C' : '#FFFFFF';
+            document.body.style.color = isDarkMode ? '#E0E0E0' : '#121212';
+            document.querySelectorAll('.btn, .toggle-btn').forEach(btn => {
+                btn.style.backgroundColor = isDarkMode ? '#E0E0E0' : '#121212';
+                btn.style.color = isDarkMode ? '#121212' : '#E0E0E0';
             });
         }
 
-        // تسجيل الدخول باستخدام البريد الإلكتروني وكلمة المرور
-        function emailSignIn() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // تم تسجيل الدخول بنجاح
-                    alert('تم تسجيل الدخول بنجاح');
-                })
-                .catch((error) => {
-                    alert('خطأ في تسجيل الدخول: ' + error.message);
-                });
+        function showPart(partNumber) {
+            var parts = document.getElementsByClassName('part');
+            for (var i = 0; i < parts.length; i++) {
+                parts[i].style.display = 'none';
+            }
+            document.getElementById('part' + partNumber).style.display = 'block';
         }
+
+        window.onload = function() {
+            showPart(1);
+        };
     </script>
 </head>
 <body>
-    <header>
-        <h1>رواية جين - الصفحة الرئيسية</h1>
-    </header>
+    <button class="toggle-btn" onclick="toggleMode()">تغيير الوضع</button>
+    <h1>Dark Spot - لعبة رعب الفضاء</h1>
 
-    <!-- الواجهة الرئيسية بعد تسجيل الدخول -->
-    <div id="main-content" class="container" style="display: none;">
-        <h2>مرحبا بكم في رواية جين!</h2>
-        <p>هذا هو المحتوى الرئيسي للموقع بعد تسجيل الدخول.</p>
-        <button class="sign-out-btn" onclick="signOut()">تسجيل الخروج</button>
-    </div>
+<!-- الجزء 1 -->
+<div id="part1" class="part">
+    <p>في عمق الفضاء، كان هناك كوكب مُهجَر، مليء بالظلام والوحوش. ألكس، الناجي الوحيد، استيقظ في مكانٍ لا يعرفه.</p>
+    <p>شعر بألمٍ حادٍ في جسده، وكأن كل ذرة فيه تذكّره بأنه لا يزال على قيد الحياة. استمع إلى أصواتٍ غريبة، وكان يشعر بأن هناك من يراقبه.</p>
+    <button class="btn" onclick="showPart(2)">استكشاف المكان</button>
+    <button class="btn" onclick="showPart(3)">البقاء في مكانه</button>
+</div>
 
-    <!-- نموذج تسجيل الدخول -->
-    <div id="login-form" class="container">
-        <h2>تسجيل الدخول</h2>
-        <input type="email" id="email" placeholder="البريد الإلكتروني">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button onclick="emailSignIn()">تسجيل الدخول</button>
-    </div>
-</body>
-</html>
+<!-- الجزء 2 -->
+<div id="part2" class="part">
+    <p>قرر ألكس استكشاف المكان، بينما كان خائفًا من كل صوتٍ يحيط به. كل خطوة كان يأخذها كانت تصدر صدىً مخيفًا في الظلام.</p>
+    <p>فجأة، ظهرت أمامه كائنات مظلمة. عيونها اللامعة تراقبه، وكأنها تريد أن تأخذه إلى عالمها.</p>
+    <button class="btn" onclick="showPart(4)">مواجهة الكائنات</button>
+    <button class="btn" onclick="showPart(5)">الهروب</button>
+</div>
+
+<!-- الجزء 3 -->
+<div id="part3" class="part">
+    <p>ألكس قرر البقاء في مكانه. لكنه لم يكن آمنًا، فالظلام بدأ يتسرب إليه، وكأن الكائنات تتقرب منه شيئًا فشيئًا.</p>
+    <p>شعر بخوفٍ يتصاعد في داخله، وأدرك أن هذه العزلة ليست خيارًا.</p>
+    <button class="btn" onclick="showPart(4)">مواجهة الكائنات</button>
+    <button class="btn" onclick="showPart(5)">الهروب</button>
+</div>
+
+<!-- الجزء 4 -->
+<div id="part4" class="part">
+    <p>مواجهة الكائنات كانت فكرة مروعة، لكن ألكس قرر أن يواجههم. أمسك بسلاحه وأخذ نفسًا عميقًا.</p>
+    <p>الكائنات تقدمت نحوه، وعيناهما اللامعتان تتأملانه بحذر. في تلك اللحظة، شعر بأنه ليس وحده في هذا العالم المرعب.</p>
+    <button class="btn" onclick="showPart(6)">الهجوم على الكائنات</button>
+    <button class="btn" onclick="showPart(7)">التراجع</button>
+</div>
+
+<!-- الجزء 5 -->
+<div id="part5" class="part">
+    <p>ألكس قرر الهروب، وعيناه مليئتان بالرعب. كانت الكائنات تصدر أصواتًا مزعجة، وكأنها تحاول منعه من الخروج.</p>
+    <p>ركض بأقصى سرعته، وترك كل شيء وراءه. لكن قلبه كان يدق بسرعة، وكأن الخوف يتبعه.</p>
+    <button class="btn" onclick="showPart(8)">الاختباء في مكانٍ مظلم</button>
+    <button class="btn" onclick="showPart(9)">استمرار الهروب</button>
+</div>
+
+<!-- الجزء 6 -->
+<div id="part6" class="part">
+    <p>بدأ ألكس في الهجوم على الكائنات. لكن سرعان ما أدرك أنه لا يملك القوة الكافية. كانت الوحوش تفوقه عددًا.</p>
+    <p>شعر بالألم يتزايد مع كل ضربة يتلقاها. ومع ذلك، كان لديه شعور غريب بأن القتال هو طريقه الوحيد للبقاء.</p>
+    <button class="btn" onclick="showPart(10)">مواصلة المعركة</button>
+    <button class="btn" onclick="showPart(11)">التراجع والبحث عن ملجأ</button>
+</div>
+
+<!-- الجزء 7 -->
+<div id="part7" class="part">
+    <p>تراجع ألكس، وعيناه تتسعان من الخوف. كان يدرك أن الهجوم لم يكن خيارًا حكيمًا، وأن البقاء في مكانٍ آمن قد يكون الخيار الأفضل.</p>
+    <p>لكن الظلام كان يقترب، وبدأ يشعر بأن النهاية تقترب منه.</p>
+    <button class="btn" onclick="showPart(8)">الاختباء في مكانٍ مظلم</button>
+    <button class="btn" onclick="showPart(9)">استمرار الهروب</button>
+</div>
+
+<!-- الجزء 8 -->
+<div id="part8" class="part">
+    <p>اختبأ ألكس في مكانٍ مظلم، محاولًا إخفاء أنفاسه. كانت الكائنات تقترب، ويمكنه سماع أنفاسها.</p>
+    <p>شعر بالبرودة تتسرب إلى عظامه، لكنه كان يعلم أنه إذا صمد، فقد يتمكن من النجاة.</p>
+    <button class="btn" onclick="showPart(12)">الانتظار حتى تبتعد الكائنات</button>
+    <button class="btn" onclick="showPart(13)">الخروج من الاختباء</button>
+</div>
+
+<!-- الجزء 9 -->
+<div id="part9" class="part">
+    <p>قرر ألكس الانتظار حتى تبتعد الكائنات. بينما كان الوقت يمضي، بدأ عقله يتخيل أشياء مرعبة.</p>
+    <p>أدرك أنه ليس بمفرده، بل كان وحيدًا في مواجهة كل مخاوفه. كانت تلك اللحظة نقطة تحول في حياته.</p>
+    <button class="btn" onclick="showPart(14)">الخروج من الاختباء</button>
+    <button class="btn" onclick="showPart(15)">الاستسلام للظلام</button>
+</div>
+
+<!-- الجزء 10 -->
+<div id="part10" class="part">
+    <p>ألكس استمر في المعركة، وقلبه يتسارع. أصبح أكثر قوة وشجاعة، لكن الألم كان يلتهمه.</p>
+    <p>كان كل هجوم يقربه من النهاية، لكنه كان مستعدًا لدفع الثمن. سلاحه كان كالسيف، لكنه لم يكن كافيًا.</p>
+    <button class="btn" onclick="showPart(16)">القتال حتى النهاية</button>
+    <button class="btn" onclick="showPart(17)">الهروب والبحث عن ملجأ</button>
+</div>
+
+<!-- الجزء 11 -->
+<div id="part11" class="part">
+    <p>تراجع ألكس مجددًا، شعر أنه ليس لديه خيار آخر. الهروب كان الحل الوحيد، لكن هل سيكون قادرًا على النجاة؟</p>
+    <p>أخذ نفسًا عميقًا وبدأ الركض مجددًا. الكائنات كانت خلفه، وكأنها تتبع خيوط خوفه.</p>
+    <button class="btn" onclick="showPart(18)">مواصلة الهروب</button>
+    <button class="btn" onclick="showPart(19)">البحث عن سلاح أفضل</button>
+</div>
+
+<!-- الجزء 12 -->
+<div id="part12" class="part">
+    <p>ألكس قرر الانتظار حتى تبتعد الكائنات. بينما كان يستمع للظلام من حوله، تذكر حياته قبل هذا الكابوس.</p>
+    <p>كل الذكريات أظهرت له أنه لا يزال لديه شيء للقتال من أجله. الصمود هو الخيار الوحيد الآن.</p>
+    <button class="btn" onclick="showPart(20)">الخروج من الاختباء</button>
+    <button class="btn" onclick="showPart(21)">الاستسلام للألم</button>
+</div>
+
+<!-- الجزء 13 -->
+<div id="part13" class="part">
+    <p>قرر ألكس الخروج من الاختباء. لكن عندما خرج، وجد نفسه محاطًا بالظلام أكثر من أي وقت مضى. كان عليه مواجهة كل ما يخاف منه.</p>
+    <p>أخذ خطوة إلى الأمام، وقرر أن يقاتل حتى النهاية. كان يدرك أن حياته تعتمد على اختياراته الآن.</p>
+    <button class="btn" onclick="showPart(22)">القتال ببطولة</button>
+    <button class="btn" onclick="showPart(23)">الاستسلام</button>
+</div>
+
+<!-- الجزء 14 (مستمر) -->
+<div id="part14" class="part">
+    <p>ألكس قرر القتال ببطولة، وأخذ سلاحه وبدأ في الهجوم. كل ضربة كانت تكلفه ألمًا أكبر، لكنه استمر في القتال.</p>
+    <p>تدفق الدماء في كل مكان، وكانت الكائنات تصرخ من حوله. لم يعد يرى شيء سوى الظلام.</p>
+    <button class="btn" onclick="showPart(24)">مواصلة المعركة</button>
+    <button class="btn" onclick="showPart(25)">الهروب</button>
+</div>
+
+<!-- الجزء 15 -->
+<div id="part15" class="part">
+    <p>ألكس قرر الهروب، لكن كل كائن كان يقف في طريقه. كان الأمر وكأنه محاصر في كابوس لا ينتهي.</p>
+    <p>حاول جاهدًا أن يجد مخرجًا، لكن كلما تحرك، زادت الكائنات من ضغطها عليه. بدأ يسيطر عليه اليأس.</p>
+    <button class="btn" onclick="showPart(26)">مواجهة الكائنات مجددًا</button>
+    <button class="btn" onclick="showPart(27)">البحث عن ملجأ</button>
+</div>
+
+<!-- الجزء 16 -->
+<div id="part16" class="part">
+    <p>مواجهة الكائنات مجددًا كانت الخيار الوحيد. ألكس استجمع قواه وأطلق صرخته الأخيرة في وجه الظلام.</p>
+    <p>بدأ يقاتل، وكل ضربة كانت تحمل معه ذكريات الألم والأمل. كان يعرف أنه لا مجال للخطأ.</p>
+    <button class="btn" onclick="showPart(28)">استمرار المعركة</button>
+    <button class="btn" onclick="showPart(29)">الاستسلام</button>
+</div>
+
+<!-- الجزء 17 -->
+<div id="part17" class="part">
+    <p>ألكس قرر البحث عن ملجأ، وبدأ يجري في الممرات المظلمة. كان قلبه يدق بشدة، وكأنه يحذر من الخطر.</p>
+    <p>في لحظة، شعر بشيء يلمس يده. كانت إحدى الكائنات تحاول جذبه إلى الظلام.</p>
+    <button class="btn" onclick="showPart(30)">مواجهة الكائن</button>
+    <button class="btn" onclick="showPart(31)">الهروب السريع</button>
+</div>
+
+<!-- الجزء 18 -->
+<div id="part18" class="part">
+    <p>قرر ألكس مواجهة الكائن. لكن الكائن كان أقوى مما توقع. استخدم كل قوته، ومع ذلك، لم يستطع الفوز.</p>
+    <p>الشعور بالألم كان يتزايد، بينما كان يتحرك ببطء نحو النهاية. بدأت رؤيته تتلاشى.</p>
+    <button class="btn" onclick="showPart(32)">القتال حتى الموت</button>
+    <button class="btn" onclick="showPart(33)">الاستسلام للألم</button>
+</div>
+
+<!-- الجزء 19 -->
+<div id="part19" class="part">
+    <p>ألكس قرر الهروب السريع، بينما الكائن يحاول الإمساك به. ركض بكل سرعته، لكن الظلام كان يحيط به من كل جانب.</p>
+    <p>في لحظة حرجة، شعر بشيء ما يقترب منه. كان عليه أن يختار: هل يواجه الخطر أم يواصل الهروب؟</p>
+    <button class="btn" onclick="showPart(34)">المواجهة</button>
+    <button class="btn" onclick="showPart(35)">الهروب</button>
+</div>
+
+<!-- الجزء 20 -->
+<div id="part20" class="part">
+    <p>قرر ألكس مواجهة الخطر. كانت الكائنات تقترب منه، وعيناه مليئتان بالتصميم. لا بد له من القتال.</p>
+    <p>اندلع قتال مرير، وكل ضربة كانت تحمل معها عبء الألم والمعاناة. لكن ألكس لم يكن مستعدًا للاستسلام.</p>
+    <button class="btn" onclick="showPart(36)">القتال حتى النهاية</button>
+    <button class="btn" onclick="showPart(37)">التراجع</button>
+</div>
+
+<!-- الجزء 21 -->
+<div id="part21" class="part">
+    <p>ألكس قرر التراجع، وعينه تجول في الظلام بحثًا عن مخرج. كان محاطًا بالخطر، لكن أمله لم يختفِ بعد.</p>
+    <p>تذكر ذكرياته، وقرر أن يتجاوز كل عقبة في طريقه. لكن الكائنات كانت تزداد قوة.</p>
+    <button class="btn" onclick="showPart(38)">البحث عن سلاح</button>
+    <button class="btn" onclick="showPart(39)">مواصلة الهروب</button>
+</div>
+
+<!-- الجزء 22 -->
+<div id="part22" class="part">
+    <p>ألكس استمر في القتال، بينما كل عدو يتساقط أمامه. كان كل انتصار يكلفه غالياً، لكنه كان مصمماً على النجاة.</p>
+    <p>ببطء، بدأ الظلام يتلاشى، لكن الكائنات كانت لا تزال تهجم عليه.</p>
+    <button class="btn" onclick="showPart(40)">مواصلة القتال</button>
+    <button class="btn" onclick="showPart(41)">البحث عن ملجأ</button>
+</div>
+
+<!-- الجزء 23 -->
+<div id="part23" class="part">
+    <p>قرر ألكس البحث عن ملجأ. كان يشعر بالتعب والإرهاق، لكن أمله كان يدفعه للمضي قدمًا.</p>
+    <p>وجد بابًا مظلمًا يقود إلى مكانٍ يبدو أكثر أمانًا. لكن هل سيكون ملاذًا حقيقيًا؟</p>
+    <button class="btn" onclick="showPart(42)">الدخول إلى الملاذ</button>
+    <button class="btn" onclick="showPart(43)">البقاء في الخارج</button>
+</div>
+
+<!-- الجزء 24 -->
+<div id="part24" class="part">
+    <p>ألكس قرر الدخول إلى الملاذ. داخل الظلام، شعر بشيء غير مريح. كان المكان مليئًا بالصراخات والذكريات.</p>
+    <p>شعر بأن المكان يمتلك قوته الخاصة، وكأنه يقرأ أفكاره. لكن كان عليه أن يكون حذرًا.</p>
+    <button class="btn" onclick="showPart(44)">استكشاف المكان</button>
+    <button class="btn" onclick="showPart(45)">البحث عن مخرج</button>
+</div>
+
+<!-- الجزء 25 -->
+<div id="part25" class="part">
+    <p>قرر ألكس استكشاف المكان. كل خطوة كانت تحمل معها عبئًا من الذكريات المريرة.</p>
+    <p>فجأة، ظهرت أمامه كائنات من جديد. كانت أكثر شراسة، وكأنها تنتظر قدومه.</p>
+    <button class="btn" onclick="showPart(46)">مواجهة الكائنات</button>
+    <button class="btn" onclick="showPart(47)">الهروب</button>
+</div>
+
+<!-- الجزء 26 -->
+<div id="part26" class="part">
+    <p>مواجهة الكائنات كانت خيارًا محفوفًا بالمخاطر. ألكس قرر أن يقاتل مجددًا، لكن هل ستكفيه قوته؟</p>
+    <p>مع كل ضربة، كان يشعر بأن قوته تتناقص. لكن الإصرار على النجاة كان يدفعه إلى الأمام.</p>
+    <button class="btn" onclick="showPart(48)">القتال حتى النهاية</button>
+    <button class="btn" onclick="showPart(49)">التراجع</button>
+</div>
+
+<!-- الجزء 27 (مستمر) -->
+<div id="part27" class="part">
+    <p>ألكس قرر الهروب مجددًا. كلما ابتعد عن الكائنات، شعر بأن الأمل يعود إليه. لكنه كان يعلم أن الخطر لم ينتهي بعد.</p>
+    <p>ركض في الممرات المظلمة، محاولًا إيجاد مخرج. ولكن هل ستكون هناك فرصة للنجاة؟</p>
+    <button class="btn" onclick="showPart(50)">البحث عن مخرج</button>
+    <button class="btn" onclick="showPart(51)">الاختباء</button>
+</div>
+
+<!-- الجزء 28 -->
+<div id="part28" class="part">
+    <p>ألكس قرر البحث عن مخرج، وقلبه مليء بالتوتر. شعر بوجود شيء يراقبه من الظلام.</p>
+    <p>كانت خطواته تتردد في الممرات، وكأن الوقت يتلاشى حوله. لكن شيئًا ما كان ينتظره في الزاوية.</p>
+    <button class="btn" onclick="showPart(52)">المواجهة</button>
+    <button class="btn" onclick="showPart(53)">الاستمرار في الهروب</button>
+</div>
+
+<!-- الجزء 29 -->
+<div id="part29" class="part">
+    <p>قرر ألكس مواجهة ما يراقبه. اقترب بحذر، ووجد كائنًا مظلمًا يتحرك ببطء. عينيه تألقتا بالألم والغضب.</p>
+    <p>ألكس استجمع شجاعته، واندفع نحو الكائن. كانت معركة حياة أو موت.</p>
+    <button class="btn" onclick="showPart(54)">القتال</button>
+    <button class="btn" onclick="showPart(55)">التراجع</button>
+</div>
+
+<!-- الجزء 30 -->
+<div id="part30" class="part">
+    <p>ألكس قرر القتال. بدأت المعركة تتصاعد، والألم يتزايد. كل ضربة كانت تحمل معها ذكرياته المؤلمة.</p>
+    <p>لكنه لم يكن وحده، بل كان هناك أيضًا أصداء من الماضي تجسد له. كانت تخبره بعدم الاستسلام.</p>
+    <button class="btn" onclick="showPart(56)">استمرار القتال</button>
+    <button class="btn" onclick="showPart(57)">طلب المساعدة</button>
+</div>
+
+<!-- الجزء 31 -->
+<div id="part31" class="part">
+    <p>ألكس قرر التراجع. كان يعلم أن القتال بهذا الشكل قد يؤدي إلى نهايته. أسرع نحو المخرج الذي وجده سابقًا.</p>
+    <p>بينما كان يركض، شعر بأن الكائنات تلاحقه. كان عليه أن يسرع.</p>
+    <button class="btn" onclick="showPart(58)">البحث عن سلاح</button>
+    <button class="btn" onclick="showPart(59)">مواصلة الهروب</button>
+</div>
+
+<!-- الجزء 32 -->
+<div id="part32" class="part">
+    <p>ألكس قرر البحث عن سلاح. وجد شيئًا في الزاوية: خنجر قديم، يبدو أنه لا يزال يحتفظ ببعض القوة.</p>
+    <p>مع هذا السلاح، شعر بشيء من الأمل يتجدد في داخله. حان الوقت لمواجهة الظلام.</p>
+    <button class="btn" onclick="showPart(60)">استعادة الشجاعة</button>
+    <button class="btn" onclick="showPart(61)">التراجع مجددًا</button>
+</div>
+
+<!-- الجزء 33 -->
+<div id="part33" class="part">
+    <p>ألكس استعاد شجاعته وقرر مواجهة الكائنات. اندفع نحو الظلام، متسلحًا بالخنجر الجديد.</p>
+    <p>كان القتال شرسًا، لكن ألكس كان أكثر عزمًا من أي وقت مضى. كان يعلم أنه يجب أن يقاتل حتى النهاية.</p>
+    <button class="btn" onclick="showPart(62)">مواصلة القتال</button>
+    <button class="btn" onclick="showPart(63)">الاستسلام</button>
+</div>
+
+<!-- الجزء 34 -->
+<div id="part34" class="part">
+    <p>ألكس قرر أن يقاتل حتى النهاية. كان يشعر بأن هذه المعركة هي مصيره. لم يكن لديه خيار آخر.</p>
+    <p>كل ضربة كانت تحمل معها صراخات الماضي، لكنها كانت أيضًا تأكيدًا على قوة إرادته.</p>
+    <button class="btn" onclick="showPart(64)">القتال حتى الموت</button>
+    <button class="btn" onclick="showPart(65)">التراجع</button>
+</div>
+
+<!-- الجزء 35 -->
+<div id="part35" class="part">
+    <p>ألكس قرر الاستسلام. شعر بأنه لا يمكنه مواجهة كل هذا الألم. تراجع إلى المخرج، لكنه كان محاطًا بالكائنات.</p>
+    <p>في تلك اللحظة، أدرك أنه لا يمكنه الهروب من مصيره. كان عليه أن يواجهه.</p>
+    <button class="btn" onclick="showPart(66)">العودة للمواجهة</button>
+    <button class="btn" onclick="showPart(67)">انتظار النهاية</button>
+</div>
+
+<!-- الجزء 36 -->
+<div id="part36" class="part">
+    <p>ألكس قرر العودة للمواجهة. كان يعلم أنه إذا استسلم، فسيكون قد خسر كل شيء.</p>
+    <p>استجمع قواه واندفع مرة أخرى نحو الكائنات. هذه المرة، كان قلبه مليئًا بالعزيمة.</p>
+    <button class="btn" onclick="showPart(68)">مواجهة نهائية</button>
+    <button class="btn" onclick="showPart(69)">طلب المساعدة</button>
+</div>
+
+<!-- الجزء 37 -->
+<div id="part37" class="part">
+    <p>ألكس قرر طلب المساعدة. رفع صوته في الظلام، طالبًا من أي شخص سماعه. كان يأمل أن يسمعه أحد.</p>
+    <p>وفجأة، جاءت ضوء خافت من بعيد. كان هناك شخص، أو كائن، يقترب منه.</p>
+    <button class="btn" onclick="showPart(70)">استقبال القادم</button>
+    <button class="btn" onclick="showPart(71)">الهروب مجددًا</button>
+</div>
+
+<!-- الجزء 38 -->
+<div id="part38" class="part">
+    <p>ألكس قرر استقبال القادم. جاء الكائن باتجاهه، وفي عينيه كان هناك أمل وحياة. كان ذلك الأمل يضيء الطريق أمامه.</p>
+    <p>تحدث الكائن بكلمات غير مفهومة، لكن ألكس شعر بأنها تعني شيئًا مهمًا.</p>
+    <button class="btn" onclick="showPart(72)">فهم الرسالة</button>
+    <button class="btn" onclick="showPart(73)">الاستعداد للقتال</button>
+</div>
+
+<!-- الجزء 39 -->
+<div id="part39" class="part">
+    <p>ألكس قرر الاستعداد للقتال. كان يعلم أن الكائنات لن تستسلم بسهولة. لكنه كان أكثر قوة الآن.</p>
+    <p>بدا الكائن الذي جاء كأنه يمثل النور في هذا الظلام. لم يكن وحده بعد الآن.</p>
+    <button class="btn" onclick="showPart(74)">مواجهة الكائنات معًا</button>
+    <button class="btn" onclick="showPart(75)">البحث عن ملجأ</button>
+</div>
+
+<!-- الجزء 40 -->
+<div id="part40" class="part">
+    <p>ألكس قرر مواجهة الكائنات مع الكائن الجديد. اجتمعوا، وانطلقوا معًا نحو الظلام. كانت القلوب مليئة بالشجاعة.</p>
+    <p>عندما بدأوا القتال، شعر ألكس بأن الأمل يعود مرة أخرى. لم يكن وحيدًا في هذه المعركة.</p>
+    <button class="btn" onclick="showPart(76)">القتال بكل قوة</button>
+    <button class="btn" onclick="showPart(77)">التراجع للخلف</button>
+</div>
+
+<!-- الجزء 41 -->
+<div id="part41" class="part">
+    <p>قرر ألكس التراجع للخلف. لم يكن واثقًا من قوة الكائن الجديد. كان يخشى أن يفقد كل شيء مرة أخرى.</p>
+    <p>لكن مع كل خطوة، كانت الكائنات تقترب منه. كان عليه أن يختار: هل يبقى في الظلام أم يواجه مصيره؟</p>
+    <button class="btn" onclick="showPart(78)">العودة للمواجهة</button>
+    <button class="btn" onclick="showPart(79)">البحث عن مخرج جديد</button>
+</div>
+
+<!-- الجزء 42 (مستمر) -->
+<div id="part42" class="part">
+    <p>ألكس قرر العودة للمواجهة. كانت مشاعره متضاربة، لكن قلبه أكد له أنه لا يمكن الهروب بعد الآن.</p>
+    <p>استجمع قواه، وأخذ نفسًا عميقًا، واندفع نحو الكائنات المظلمة. كانت اللحظة حاسمة.</p>
+    <button class="btn" onclick="showPart(80)">القتال بجرأة</button>
+    <button class="btn" onclick="showPart(81)">الاستعداد للموت</button>
+</div>
+
+<!-- الجزء 43 -->
+<div id="part43" class="part">
+    <p>ألكس قرر القتال بجرأة. كانت كل خطوة تمثل تحديًا. كانت الكائنات تتجمع حوله، لكن بفضل الكائن الآخر، شعر بأنه يستطيع مواجهة الجميع.</p>
+    <p>بدأ القتال، وكأن الأمل يتجسد في كل ضربة. لم يعد هناك مكان للخوف.</p>
+    <button class="btn" onclick="showPart(82)">استمرار المعركة</button>
+    <button class="btn" onclick="showPart(83)">الاستنجاد بالمساعدة</button>
+</div>
+
+<!-- الجزء 44 -->
+<div id="part44" class="part">
+    <p>ألكس قرر الاستنجاد بالمساعدة. صرخ بكل قوته، أملاً في أن يسمعه من كان قريبًا.</p>
+    <p>في تلك اللحظة، ظهر كائن آخر من الظلام. كان يبدو قويًا ورائعًا، كأنه يحمل أمل العالم كله.</p>
+    <button class="btn" onclick="showPart(84)">التعاون مع الكائن الجديد</button>
+    <button class="btn" onclick="showPart(85)">القتال بمفرده</button>
+</div>
+
+<!-- الجزء 45 -->
+<div id="part45" class="part">
+    <p>ألكس قرر التعاون مع الكائن الجديد. انطلقا معًا، متجاوزين كل العقبات. كانت قوة الصداقة والتعاون تتجلى في كل لحظة.</p>
+    <p>بدأت الكائنات تتراجع أمامهم. الأمل أصبح أقوى من أي وقت مضى.</p>
+    <button class="btn" onclick="showPart(86)">الاستمرار في المعركة</button>
+    <button class="btn" onclick="showPart(87)">التراجع والتفكير</button>
+</div>
+
+<!-- الجزء 46 -->
+<div id="part46" class="part">
+    <p>ألكس قرر الاستمرار في المعركة. كانت الدموع تتساقط من عينيه، لكن هذه المرة، كانت دموع الأمل.</p>
+    <p>مع كل ضربة، كانت ذكرياته تمر أمام عينيه، تذكره لماذا كان يقاتل. لم يكن يقاتل لنفسه فقط، بل لمن فقدهم.</p>
+    <button class="btn" onclick="showPart(88)">مواجهة الزعيم</button>
+    <button class="btn" onclick="showPart(89)">الاستعداد للنهائي</button>
+</div>
+
+<!-- الجزء 47 -->
+<div id="part47" class="part">
+    <p>ألكس قرر مواجهة الزعيم. كانت هذه اللحظة حاسمة. تقدم نحو الكائن الذي كان يقف في الظلام، يراقبه بعينين مملوءتين بالكراهية.</p>
+    <p>كانت المعركة عنيفة، لكن ألكس كان مصممًا على الانتصار. لم يكن وحده، بل كان لديه أصدقاؤه الذين دعموا قضيته.</p>
+    <button class="btn" onclick="showPart(90)">استعادة السيطرة</button>
+    <button class="btn" onclick="showPart(91)">محاولة الهروب</button>
+</div>
+
+<!-- الجزء 48 -->
+<div id="part48" class="part">
+    <p>ألكس قرر استعادة السيطرة. كانت ضرباته دقيقة، وقراراته سريعة. كان يشعر بالقوة تتجسد في كل حركة.</p>
+    <p>مع كل ضربة، كان يقترب من الانتصار. لم يعد هناك مكان للخوف أو الشك.</p>
+    <button class="btn" onclick="showPart(92)">النصر قريب</button>
+    <button class="btn" onclick="showPart(93)">التراجع للتفكير</button>
+</div>
+<!-- الجزء 49 -->
+<div id="part49" class="part">
+    <p>ألكس قرر التراجع للتفكير. كان عليه أن يستعيد أنفاسه، وكان يفكر في كل ما واجهه حتى الآن.</p>
+    <p>تذكر الأشخاص الذين فقدهم، وأصبح تصميمه أقوى. كان يعلم أن عليه القتال حتى النهاية.</p>
+    <button class="btn" onclick="showPart(94)">العودة للمواجهة</button>
+    <button class="btn" onclick="showPart(95)">البحث عن استراتيجية جديدة</button>
+</div>
+
+<!-- الجزء 50 -->
+<div id="part50" class="part">
+    <p>ألكس قرر العودة للمواجهة. كان قد استعد بما فيه الكفاية، وذهب بكل قوته نحو الكائن. كانت المعركة حاسمة، وكل لحظة تعني الكثير.</p>
+    <p>فجأة، لاحظ أن الكائن بدأ يتراجع، كأنه يشعر بقوة عزيمته. كانت النهاية تقترب.</p>
+    <button class="btn" onclick="showPart(96)">مواصلة الضغط</button>
+    <button class="btn" onclick="showPart(97)">استغلال الضعف</button>
+</div>
+
+<!-- الجزء 51 -->
+<div id="part51" class="part">
+    <p>ألكس قرر مواصلة الضغط. استخدم كل ما تعلمه من المعارك السابقة، وبدأ يتقن الحركات بشكل متقن.</p>
+    <p>كانت كل ضربة تحمل معها الألم الذي عاناه، لكنها أيضًا كانت تعكس شجاعته وإرادته.</p>
+    <button class="btn" onclick="showPart(98)">القتال حتى النهاية</button>
+    <button class="btn" onclick="showPart(99)">التراجع للحظة</button>
+</div>
+
+<!-- الجزء 52 -->
+<div id="part52" class="part">
+    <p>ألكس قرر القتال حتى النهاية. في ذروة المعركة، شعر باندماج كل طاقاته في ضربة واحدة.</p>
+    <p>انطلق نحو الكائن، وكأن الوقت توقف. كانت لحظة المصير، وكل شيء يعتمد على هذه الضربة.</p>
+    <button class="btn" onclick="showPart(100)">الضربة القاضية</button>
+    <button class="btn" onclick="showPart(101)">التراجع للخلف</button>
+</div>
+
+<!-- الجزء 53 -->
+<div id="part53" class="part">
+    <p>ألكس قرر التراجع للخلف. أدرك أن القتال قد يكلفه حياته، وأن هناك أوقاتًا ينبغي فيها اتخاذ قرارات صعبة.</p>
+    <p>تراجع ببطء، وهو يراقب ما يحدث. كانت الكائنات تتلاشى شيئًا فشيئًا، لكن لم يكن الأمر سهلاً.</p>
+    <button class="btn" onclick="showPart(102)">محاولة جديدة</button>
+    <button class="btn" onclick="showPart(103)">انتظار النهاية</button>
+</div>
+
+<!-- الجزء 54 -->
+<div id="part54" class="part">
+    <p>ألكس قرر محاولة جديدة. أعاد التفكير في استراتيجيته، وبدأ يراقب الكائنات عن كثب.</p>
+    <p>فكر في كيفية استغلال نقاط ضعفهم، وعزم على القتال بشكل مختلف هذه المرة.</p>
+    <button class="btn" onclick="showPart(104)">البحث عن نقطة ضعف</button>
+    <button class="btn" onclick="showPart(105)">مواجهة مباشرة</button>
+</div>
+
+<!-- الجزء 55 -->
+<div id="part55" class="part">
+    <p>ألكس قرر مواجهة الكائنات مباشرة. كانت المعركة عنيفة، لكنه كان يعرف ما يفعله.</p>
+    <p>بدأ في استخدام كل قوتهم لإجبار الكائنات على التراجع. كان كل شيء يعتمد على هذه اللحظة.</p>
+    <button class="btn" onclick="showPart(106)">مواصلة الضغط</button>
+    <button class="btn" onclick="showPart(107)">تغيير الاستراتيجية</button>
+</div>
+
+<!-- الجزء 56 -->
+<div id="part56" class="part">
+    <p>ألكس قرر مواصلة الضغط. كانت المعركة تجري في أوجها، لكن عزيمته كانت أقوى من أي وقت مضى.</p>
+    <p>فجأة، سمع صوتًا داخليًا يخبره بأنه يجب أن يكون أكثر شجاعة.</p>
+    <button class="btn" onclick="showPart(108)">القتال حتى الموت</button>
+    <button class="btn" onclick="showPart(109)">التراجع للتفكير</button>
+</div>
+
+<!-- الجزء 57 -->
+<div id="part57" class="part">
+    <p>ألكس قرر القتال حتى الموت. كانت الروح القتالية تتدفق في عروقه، وشعر بأن كل ما مر به قد أعده لهذه اللحظة.</p>
+    <p>اندفع نحو الكائن الأكبر، وعيناه تتلألأ بالشجاعة. كانت تلك المعركة ستحدد مصيره.</p>
+    <button class="btn" onclick="showPart(110)">توجيه ضربة حاسمة</button>
+    <button class="btn" onclick="showPart(111)">استغلال البيئة</button>
+</div>
+
+<!-- الجزء 58 -->
+<div id="part58" class="part">
+    <p>ألكس قرر توجيه ضربة حاسمة. جمع كل قوته في يده، واندفع نحو الكائن بكامل عزم.</p>
+    <p>في لحظة المواجهة، شعر بأنه ليس وحده، بل كان كل من أحبهم يقف خلفه يدعمه.</p>
+    <button class="btn" onclick="showPart(112)">اللحظة الحاسمة</button>
+    <button class="btn" onclick="showPart(113)">التردد للحظة</button>
+</div>
+
+
